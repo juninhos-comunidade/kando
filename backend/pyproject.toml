@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 100
+
+[tool.pylint.MASTER]
+load-plugins = ["pylint_django"]
+
+[tool.pylint.DJANGO]
+django-settings-module = "config.settings"

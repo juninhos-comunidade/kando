@@ -1,3 +1,46 @@
-from django.contrib import admin
+"""Admin do app users.
 
-# Register your models here.
+Configura a interface do Django admin para o modelo User customizado.
+"""
+
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+
+from .models import User
+
+
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    """Configuração do admin para o modelo User baseado em email."""
+
+    ordering = ["email"]
+    list_display = ["email", "full_name", "supabase_uid", "is_staff", "is_active"]
+    search_fields = ["email", "full_name", "supabase_uid"]
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Informações pessoais", {"fields": ("full_name",)}),
+        ("Supabase", {"fields": ("supabase_uid",)}),
+        (
+            "Permissões",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
+        ("Datas", {"fields": ("last_login", "date_joined", "updated_at")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2", "is_staff", "is_active"),
+            },
+        ),
+    )
+    readonly_fields = ["date_joined", "last_login", "updated_at"]
