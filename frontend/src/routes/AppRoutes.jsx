@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../components/layout/ProtectedRoute";
 
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
@@ -17,17 +18,71 @@ export default function AppRoutes() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/upload" element={<UploadProfile />} />
-      <Route path="/score" element={<ProfileScore />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <UploadProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/score"
+        element={
+          <ProtectedRoute>
+            <ProfileScore />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/simulation/instructions"
-        element={<SimulationInstructions />}
+        element={
+          <ProtectedRoute>
+            <SimulationInstructions />
+          </ProtectedRoute>
+        }
       />
-      <Route path="/simulation/questions" element={<SimulationQuestions />} />
-      <Route path="/report" element={<Report />} />
-      <Route path="/talent-passport" element={<TalentPassport />} />
-      <Route path="/study-path" element={<StudyPath />} />
+      <Route
+        path="/simulation/questions"
+        element={
+          <ProtectedRoute>
+            <SimulationQuestions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/report"
+        element={
+          <ProtectedRoute>
+            <Report />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/talent-passport"
+        element={
+          <ProtectedRoute>
+            <TalentPassport />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/study-path"
+        element={
+          <ProtectedRoute>
+            <StudyPath />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

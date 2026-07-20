@@ -1,4 +1,11 @@
-// Hook de autenticação — implementado de verdade na tarefa de auth
+import { useState, useEffect } from "react";
+
 export default function useAuth() {
-  return {};
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem("kando_user"));
+  }, []);
+
+  return { isAuthenticated };
 }
