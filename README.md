@@ -206,6 +206,13 @@ Construído para o Hackathon Juninhos-Nortjobs, entre 16/07/2026 e 16/08/2026.
 - [x] Validação end-to-end com a API real do Groq
 - [x] Configuração e validação final de deploy
 
+## 🤖 Disclaimer sobre uso de IA no desenvolvimento
+
+Durante o desenvolvimento deste projeto, a equipe utilizou o Claude Sonnet 5 (Anthropic)
+como ferramenta de apoio e tutoria técnica — auxiliando em dúvidas de implementação,
+revisão de lógica e boas práticas ao longo do processo. As decisões de arquitetura,
+implementação e integração final foram de responsabilidade da equipe.
+
 
 ## 📄 Licença
 
