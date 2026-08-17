@@ -1,12 +1,12 @@
-# Documentação do Backend — Kando
+# Documentação do Backend — KANdo
 
 ## Escopo e autoria
 
-A camada de Backend do Kando foi concebida e desenvolvida por  Karina [![GitHub](https://img.shields.io/badge/GitHub-KarinaS0uza-181717?style=flat&logo=github)](https://github.com/KarinaS0uza) 
+A camada de Backend do KANdo foi concebida e desenvolvida por Karina [![GitHub](https://img.shields.io/badge/GitHub-KarinaS0uza-181717?style=flat&logo=github)](https://github.com/KarinaS0uza)
 
 ## Visão geral
 
-O backend do Kando é uma API Django REST responsável por autenticação, persistência, processamento de currículos e vagas, orquestração dos módulos de IA, matching, avaliação técnica, dashboard, trilha e Talent Passport.
+O backend do KANdo é uma API Django REST responsável por autenticação, persistência, processamento de currículos e vagas, orquestração dos módulos de IA, matching, avaliação técnica, dashboard, trilha e Talent Passport.
 
 ## Stack
 
@@ -18,6 +18,22 @@ O backend do Kando é uma API Django REST responsável por autenticação, persi
 - Groq para chamadas ao modelo de IA (SDK `groq`, 1.5.0 — único provider de IA do projeto)
 - SQLite para desenvolvimento local
 - PostgreSQL/Supabase opcional para banco remoto (via `psycopg`)
+
+### Substituição do Docling pelo pdfplumber
+
+A extração de texto dos PDFs foi inicialmente implementada com o Docling.
+Entretanto, a biblioteca e suas dependências consumiam mais memória do que o
+disponível no ambiente de deploy do Render, causando falhas durante a construção
+ou execução da aplicação.
+
+Para viabilizar o deploy, o Docling foi substituído pelo `pdfplumber`, uma
+solução mais leve e suficiente para extrair o texto de currículos e vagas em
+PDF. A mudança reduziu o consumo de memória e o tamanho das dependências,
+permitindo que o backend fosse executado dentro dos limites do Render.
+
+Após a substituição, também foram adicionados tratamentos para PDFs corrompidos,
+protegidos por senha, sem texto utilizável e para falhas no armazenamento
+temporário.
 
 ## Apps
 
@@ -56,32 +72,44 @@ Rotas públicas:
 
 ## Configuração
 
-As configurações são carregadas de `backend/.env`. Para executar localmente,
-são necessários ao menos:
+As configurações são carregadas de `backend/.env`. Exemplo da estrutura atual
+do arquivo `.env`:
 
 ```env
-DJANGO_SECRET_KEY=uma_chave_secreta_segura
+GROQ_API_KEYS=...
+
+DJANGO_SECRET_KEY=...
 DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:5173
-GROQ_API_KEY=sua_chave_aqui
-DATABASE_ENGINE=sqlite
+DJANGO_CORS_ALLOW_ALL_ORIGINS=True
+DJANGO_CORS_ALLOWED_ORIGINS=
+
+PORT=8000
+
+# DATABASE_ENGINE=sqlite (padrão)
+DATABASE_ENGINE=supabase
+DB_NAME=postgres
+DB_USER=...
+DB_PASSWORD=...
+DB_HOST=...
+DB_PORT=5432
 ```
 
-A API usa SQLite por padrão. Para PostgreSQL/Supabase, defina
-`DATABASE_ENGINE=supabase` e as variáveis `DB_NAME`, `DB_USER`,
-`DB_PASSWORD`, `DB_HOST` e `DB_PORT`.
+A API usa SQLite quando `DATABASE_ENGINE` não é informado. Na configuração
+atual, `DATABASE_ENGINE=supabase` habilita PostgreSQL/Supabase por meio das
+variáveis `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` e `DB_PORT`.
+
+`GROQ_API_KEYS` recebe uma ou mais chaves separadas por vírgula. O backend pode
+alternar entre elas quando uma chave atinge o limite de uso ou é rejeitada.
+Os valores sensíveis foram omitidos do exemplo e não devem ser versionados.
 
 `DEBUG`, `ALLOWED_HOSTS` e as variáveis de CORS são sempre lidas do ambiente
 (`os.environ.get(...)`) — nunca hardcoded em `settings.py`.
 
-> **Nota de ambiente local:** no momento do último levantamento de documentação, o `.env`
-> local do projeto estava configurado de forma diferente do exemplo acima —
-> `DEBUG=True`, `ALLOWED_HOSTS=localhost,127.0.0.1`, `CORS_ALLOW_ALL_ORIGINS=True`,
-> `CORS_ALLOWED_ORIGINS` vazio e, principalmente, `DATABASE_ENGINE=supabase` (ou seja,
-> apontando para Postgres/Supabase, não SQLite). O exemplo acima continua válido como
-> configuração mínima de referência; vale só ter em mente que o ambiente local real pode
-> estar rodando contra o banco remoto em vez do SQLite.
+> **Atenção:** `DJANGO_DEBUG=True` e `DJANGO_CORS_ALLOW_ALL_ORIGINS=True` são
+> adequados apenas para desenvolvimento. Em produção, ambos devem ser definidos
+> como `False`, e `DJANGO_CORS_ALLOWED_ORIGINS` deve listar explicitamente as
+> origens autorizadas.
 
 ## Endpoints
 
@@ -157,8 +185,8 @@ Pré-requisitos para gerar um Passport: currículo e vaga normalizados, matching
 As migrations são gitignoradas (`**/migrations/` no `.gitignore`) — cada ambiente precisa
 gerá-las localmente (`python manage.py makemigrations`) antes de rodar `migrate` pela
 primeira vez. Apenas 4 arquivos `__init__.py` de migrations (`jobs`, `resumes`, `users`,
-`passports`) ficaram rastreados no git, provavelmente de antes dessa regra existir;
-`matching`, `assessments` e `ai_core` não têm nada rastreado.
+`passports`) ficaram rastreados no git; `matching`, `assessments` e `ai_core` não têm
+nada rastreado.
 
 ## Estado do código
 
